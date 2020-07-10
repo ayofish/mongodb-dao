@@ -1,5 +1,4 @@
 import { ObjectId } from "mongodb";
-import { cleanMongoId } from "./util";
 /**
  * @class BaseDao
  * Base class for all api acess to mongodb
@@ -57,13 +56,7 @@ export default class BaseDao {
    * @param {Object<field: value>} query
    */
   set query(query) {
-    if (query && query.page) {
-      this.page = query.page;
-    }
-    if (query && query.pageSize) {
-      this.pageSize = query.pageSize;
-    }
-    this._query = { pageSize: this.pageSize, page: this.page };
+    this._query = query;
   }
 
   get query() {
@@ -101,7 +94,11 @@ export default class BaseDao {
       if (idString.length >= 24) {
         this._id = ObjectId(idString);
       } else {
-        this._id = { _id: "invalid id, must be at least 24 characters long,curr length " + idString.length };
+        this._id = {
+          _id:
+            "invalid id, must be at least 24 characters long,curr length " +
+            idString.length,
+        };
         throw this._id;
       }
     } else {
@@ -150,20 +147,24 @@ export default class BaseDao {
       if (this.id) {
         const obj = await this.dbRef.findOne(this.id);
         if (obj) {
-          this.data = [cleanMongoId(obj)];
+          this.data = [obj];
         }
       } else {
         // this.data = await this.dbRef.find().toArray();
+        let aggregationArr = [
+          { $match: this.match },
+          { $skip: (this.page - 1) * this.pageSize },
+          { $limit: this.pageSize },
+        ];
+        if (this.query) {
+          aggregationArr.push(this.query);
+        }
         this.data = await this.dbRef
-          .aggregate([
-            { $match: this.match },
-            { $skip: (this.page - 1) * this.pageSize },
-            { $limit: this.pageSize },
-          ])
+          .aggregate(aggregationArr)
           .sort(this.sort)
           .toArray();
         //change _id to id
-        this.data.map(cleanMongoId);
+        // this.data.map(cleanMongoId);
       }
     } catch (ex) {
       this.resetOutput();
@@ -182,10 +183,10 @@ export default class BaseDao {
       try {
         let insertedData = await this.dbRef.insertOne(data);
         this.data = [
-          cleanMongoId({
+          {
             id: insertedData.insertedId,
             ...data,
-          }),
+          },
         ];
       } catch (ex) {
         this.resetOutput();
@@ -214,7 +215,6 @@ export default class BaseDao {
           { $set: data }
         );
         this.data = [{ ...origDataRes.value, ...data }];
-        this.data.map(cleanMongoId);
       } catch (ex) {
         this.resetOutput();
         this.error.push(ex.message);

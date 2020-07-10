@@ -7,8 +7,6 @@ exports.default = void 0;
 
 var _mongodb = require("mongodb");
 
-var _util = require("./util");
-
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -84,18 +82,7 @@ class BaseDao {
 
 
   set query(query) {
-    if (query && query.page) {
-      this.page = query.page;
-    }
-
-    if (query && query.pageSize) {
-      this.pageSize = query.pageSize;
-    }
-
-    this._query = {
-      pageSize: this.pageSize,
-      page: this.page
-    };
+    this._query = query;
   }
 
   get query() {
@@ -195,19 +182,24 @@ class BaseDao {
           var obj = yield _this.dbRef.findOne(_this.id);
 
           if (obj) {
-            _this.data = [(0, _util.cleanMongoId)(obj)];
+            _this.data = [obj];
           }
         } else {
           // this.data = await this.dbRef.find().toArray();
-          _this.data = yield _this.dbRef.aggregate([{
+          var aggregationArr = [{
             $match: _this.match
           }, {
             $skip: (_this.page - 1) * _this.pageSize
           }, {
             $limit: _this.pageSize
-          }]).sort(_this.sort).toArray(); //change _id to id
+          }];
 
-          _this.data.map(_util.cleanMongoId);
+          if (_this.query) {
+            aggregationArr.push(_this.query);
+          }
+
+          _this.data = yield _this.dbRef.aggregate(aggregationArr).sort(_this.sort).toArray(); //change _id to id
+          // this.data.map(cleanMongoId);
         }
       } catch (ex) {
         _this.resetOutput();
@@ -233,9 +225,9 @@ class BaseDao {
       if (data) {
         try {
           var insertedData = yield _this2.dbRef.insertOne(data);
-          _this2.data = [(0, _util.cleanMongoId)(_objectSpread({
+          _this2.data = [_objectSpread({
             id: insertedData.insertedId
-          }, data))];
+          }, data)];
         } catch (ex) {
           _this2.resetOutput();
 
@@ -274,8 +266,6 @@ class BaseDao {
             $set: data
           });
           _this3.data = [_objectSpread(_objectSpread({}, origDataRes.value), data)];
-
-          _this3.data.map(_util.cleanMongoId);
         } catch (ex) {
           _this3.resetOutput();
 
