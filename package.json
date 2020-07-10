@@ -4,7 +4,7 @@
   "description": "Generic Data Access Object for MongoDB",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,6 @@
     "url": "https://github.com/ayofish/mongodb-dao/issues"
   },
   "homepage": "https://github.com/ayofish/mongodb-dao#readme",
-  "dependencies": {
-    "mongodb": "^3.5.9"
-  },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
     "@babel/core": "^7.10.4",
@@ -34,7 +31,11 @@
     "core-js": "^3.6.5",
     "eslint": "^7.3.1",
     "eslint-plugin-prettier": "^3.1.4",
+    "mocha": "^8.0.1",
     "nodemon": "^2.0.4",
     "prettier": "^2.0.5"
+  },
+  "dependencies": {
+    "mongo-mock": "^4.0.0"
   }
 }
