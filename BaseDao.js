@@ -226,7 +226,7 @@ class BaseDao {
         try {
           var insertedData = yield _this2.dbRef.insertOne(data);
           _this2.data = [_objectSpread({
-            id: insertedData.insertedId
+            _id: insertedData.insertedId
           }, data)];
         } catch (ex) {
           _this2.resetOutput();
