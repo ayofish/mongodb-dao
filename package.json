@@ -1,12 +1,11 @@
 {
-  "name": "mongodb-dao",
-  "version": "1.0.0",
+  "name": "mongodb-dao-es6",
+  "version": "1.0.3",
   "description": "Generic Data Access Object for MongoDB",
-  "main": "build/index.js",
-  "type": "module",
+  "main": "./index.js",
   "scripts": {
     "test": "jest",
-    "build": "babel src -s -D -d build"
+    "build": "babel ./src -s -D -d ./"
   },
   "repository": {
     "type": "git",
