@@ -8,29 +8,29 @@ export default class BaseDao {
   /**
    * @constructor
    * @param {Object<mongo:Object<dbName: string, >>} config
-   * @param {MongoClient} db
+   * @param {MongoClient} dbClient instance of MongoDB Client
    * @param {string} collectionName
    */
-  constructor(config, db, collectionName) {
+  constructor(config, dbClient) {
     this.id = null;
     this.query = null;
-    this.collection = collectionName;
-    this.dbClient = db;
+    this.dbClient = dbClient;
     this.config = config;
+    this.collection = config.collection ? config.collection : "";
     //paginate data
     this.head = {};
     this.data = [];
     this.error = [];
     //aggregations
-    this.sort;
-    this.pageSize = config.pageSize || 20;
+    this.sort = config.sort ? config.sort : { _id: -1 };
+    this.pageSize = config.pageSize ? config.pageSize : 20;
     this.page = 1;
-    //aggregate query
     this.match = {};
   }
 
   /**
    * the page to view
+   * @param {Number} page
    */
   set page(page) {
     if (!isNaN(page) && +page > 0) {
@@ -38,6 +38,9 @@ export default class BaseDao {
     }
   }
 
+  /**
+   * @param {Number} pageSize
+   */
   set pageSize(pageSize) {
     if (!isNaN(pageSize) && +pageSize > 0) {
       this._pageSize = +pageSize;
@@ -50,7 +53,8 @@ export default class BaseDao {
     return this._pageSize;
   }
   /**
-   * query params from call object {field: value}
+   * query params from call
+   * @param {Object<field: value>} query
    */
   set query(query) {
     if (query && query.page) {
@@ -66,13 +70,16 @@ export default class BaseDao {
     return this._query;
   }
 
-  // get sort(){
+  /**
+   * @param {String} collectionName
+   */
+  set collection(collectionName) {
+    this._collection = collectionName;
+  }
 
-  // }
-
-  // get pageSize(){
-
-  // }
+  get collection() {
+    return this._collection;
+  }
 
   // get offset(){
 
@@ -82,7 +89,7 @@ export default class BaseDao {
    * @return {Object} database connection to collection
    */
   get dbRef() {
-    return this.dbClient.db(this.config.mongo.dbName).collection(this.collection);
+    return this.dbClient.db(this.dbName).collection(this.collection);
   }
 
   /**
@@ -94,8 +101,8 @@ export default class BaseDao {
       if (idString.length >= 24) {
         this._id = ObjectId(idString);
       } else {
-        this._id = { _id: "invalid id, must be at least 24 characters long" };
-        throw "invalid id, must be at least 24 characters long";
+        this._id = { _id: "invalid id, must be at least 24 characters long,curr length " + idString.length };
+        throw this._id;
       }
     } else {
       this._id = null;
@@ -153,7 +160,7 @@ export default class BaseDao {
             { $skip: (this.page - 1) * this.pageSize },
             { $limit: this.pageSize },
           ])
-          .sort({ _id: -1 })
+          .sort(this.sort)
           .toArray();
         //change _id to id
         this.data.map(cleanMongoId);
