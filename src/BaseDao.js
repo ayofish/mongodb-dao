@@ -184,7 +184,7 @@ export default class BaseDao {
         let insertedData = await this.dbRef.insertOne(data);
         this.data = [
           {
-            id: insertedData.insertedId,
+            _id: insertedData.insertedId,
             ...data,
           },
         ];
