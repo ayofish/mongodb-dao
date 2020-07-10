@@ -1,4 +1,4 @@
-import BaseDao from "../src/BaseDao";
+import { MongoDBDao as BaseDao } from "../";
 import { MongoClient } from "mongodb";
 const config = {
   collection: "facets",

@@ -2,9 +2,11 @@
   "name": "mongodb-dao",
   "version": "1.0.0",
   "description": "Generic Data Access Object for MongoDB",
-  "main": "index.js",
+  "main": "build/index.js",
+  "type": "module",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "babel src -s -D -d build"
   },
   "repository": {
     "type": "git",
@@ -38,7 +40,9 @@
     "prettier": "^2.0.5"
   },
   "dependencies": {
-    "mongo-mock": "^4.0.0",
     "mongodb": "^3.5.9"
+  },
+  "jest": {
+    "preset": "@shelf/jest-mongodb"
   }
 }
