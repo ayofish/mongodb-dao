@@ -64,6 +64,11 @@ async function main() {
     // Find documents
     const foundData = await baseDao.find();
     console.log("Found Data:", foundData);
+		
+    // Find documents
+		baseDao.match = { name: "John Doe", age: 30 };
+    const foundData = await baseDao.find();
+    console.log("Found Data:", foundData);
 
     // Update a document
     baseDao.id = createdData[0]._id;
