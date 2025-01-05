@@ -55,6 +55,8 @@ async function main() {
     };
 
     const baseDao = new BaseDao(config, client);
+		//option to change the db
+		baseDao.dbName = 'my other db';
 
     // Create a new document
     const newData = { name: "John Doe", age: 30 };
@@ -66,9 +68,23 @@ async function main() {
     console.log("Found Data:", foundData);
 		
     // Find documents
-		baseDao.match = { name: "John Doe", age: 30 };
+	baseDao.match = { name: "John Doe", age: 30 };
     const foundData = await baseDao.find();
     console.log("Found Data:", foundData);
+	//results with pagination
+	console.log("Found Data:", baseDao.output;);
+	/*
+	{
+      head: {
+        page: this.page,
+        pageSize: this.pageSize,
+        length: this.data.length,
+        dataset: this.collection,
+      },
+      data: this.data,
+      error: this.error,
+    }
+  */
 
     // Update a document
     baseDao.id = createdData[0]._id;
