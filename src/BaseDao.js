@@ -86,23 +86,29 @@ export default class BaseDao {
   }
 
   /**
-   * sets the id of the document you want to query, also sets the _idString value for raw id string
-   * @param {string} id of the document you want to query
+   * Sets the ID for the instance.
+   * 
+   * @param {string|ObjectId} idString - The ID to set. It can be either a string or an ObjectId.
+   * @throws {Object} Throws an error object if the provided ID string is less than 24 characters long.
    */
   set id(idString) {
-    if (idString) {
-      if (idString.length >= 24) {
-        this._id = ObjectId(idString);
+    if(idString instanceof ObjectId){
+      this._id = idString;
+    }else{
+      if (idString) {
+        if (idString.length >= 24) {
+          this._id = ObjectId(idString);
+        } else {
+          this._id = {
+            _id:
+              "invalid id, must be at least 24 characters long,curr length " +
+              idString.length,
+          };
+          throw this._id;
+        }
       } else {
-        this._id = {
-          _id:
-            "invalid id, must be at least 24 characters long,curr length " +
-            idString.length,
-        };
-        throw this._id;
+        this._id = null;
       }
-    } else {
-      this._id = null;
     }
   }
   /**
@@ -145,7 +151,7 @@ export default class BaseDao {
     try {
       //id declared, just get one
       if (this.id) {
-        const obj = await this.dbRef.findOne(this.id);
+        const obj = await this.dbRef.findOne({_id: this.id});
         if (obj) {
           this.data = [obj];
         }

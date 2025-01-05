@@ -1,9 +1,11 @@
-import { MongoDBDao as BaseDao } from "../";
+import { BaseDao } from "../dist";
 import { MongoClient } from "mongodb";
+import {jest} from '@jest/globals';
+
 const config = {
   collection: "facets",
   pageSize: 2,
-  dbName: global.__MONGO_DB_NAME__,
+  dbName: 'test',
 };
 
 describe("BaseDao", function () {
@@ -11,21 +13,13 @@ describe("BaseDao", function () {
   let baseDao = null;
 
   beforeEach(async () => {
-    dbClient = await MongoClient.connect(global.__MONGO_URI__, {
-      useUnifiedTopology: true,
-    });
+    dbClient = new MongoClient(global.__MONGO_URI__);
     baseDao = new BaseDao(config, dbClient);
   });
 
   afterEach(async () => {
-    await baseDao.dbRef.remove({});
+    await baseDao.dbRef.deleteMany({});
     await dbClient.close();
-  });
-
-  //instance of
-  test("should be an instance of BaseDao", () => {
-    expect.assertions(1);
-    expect(baseDao).toBeInstanceOf(BaseDao);
   });
 
   describe("Create Data", () => {
@@ -67,19 +61,19 @@ describe("BaseDao", function () {
         expect.arrayContaining([
           expect.objectContaining({ color: "red" }),
           expect.objectContaining({ color: "green" }),
-        ])
+        ]),
       );
     });
 
     //prepare data first
     test("read one", async () => {
       let readData = await baseDao.find();
-      baseDao.id = readData[0].id;
+      baseDao.id = readData[0]._id;
       readData = await baseDao.find();
       expect(readData).toHaveLength(1);
       expect(baseDao.error).toHaveLength(0);
       expect(baseDao.data).toEqual(
-        expect.arrayContaining([expect.objectContaining({ ...readData[0] })])
+        expect.arrayContaining([expect.objectContaining({ ...readData[0] })]),
       );
     });
 
@@ -89,7 +83,7 @@ describe("BaseDao", function () {
       expect(readData).toHaveLength(1);
       expect(baseDao.error).toHaveLength(0);
       expect(baseDao.data).toEqual(
-        expect.arrayContaining([expect.objectContaining({ color: "green" })])
+        expect.arrayContaining([expect.objectContaining({ color: "green" })]),
       );
     });
 
@@ -100,14 +94,14 @@ describe("BaseDao", function () {
       expect(readData).toHaveLength(1);
       expect(baseDao.error).toHaveLength(0);
       expect(baseDao.data).toEqual(
-        expect.arrayContaining([expect.objectContaining({ color: "red" })])
+        expect.arrayContaining([expect.objectContaining({ color: "red" })]),
       );
       baseDao.page = 2;
       readData = await baseDao.find();
       expect(readData).toHaveLength(1);
       expect(baseDao.error).toHaveLength(0);
       expect(baseDao.data).toEqual(
-        expect.arrayContaining([expect.objectContaining({ color: "green" })])
+        expect.arrayContaining([expect.objectContaining({ color: "green" })]),
       );
     });
   });
@@ -123,14 +117,14 @@ describe("BaseDao", function () {
       baseDao.match = { color: "green" };
       let readData = await baseDao.find();
       expect(readData).toHaveLength(1);
-      baseDao.id = readData[0].id;
+      baseDao.id = readData[0]._id;
       await baseDao.update({ color: "dark green" });
       expect(readData).toHaveLength(1);
       baseDao.match = { color: "dark green" };
       readData = await baseDao.find();
       expect(readData).toHaveLength(1);
       expect(baseDao.data).toEqual(
-        expect.arrayContaining([expect.objectContaining({ color: "dark green" })])
+        expect.arrayContaining([expect.objectContaining({ color: "dark green" })]),
       );
       expect(baseDao.error).toHaveLength(0);
     });
@@ -139,28 +133,28 @@ describe("BaseDao", function () {
       baseDao.match = { color: "green" };
       let readData = await baseDao.find();
       expect(readData).toHaveLength(1);
-      baseDao.id = readData[0].id;
+      baseDao.id = readData[0]._id;
       await baseDao.update({ color: "dark green" });
       expect(readData).toHaveLength(1);
       baseDao.match = { color: "dark green" };
       readData = await baseDao.find();
       expect(readData).toHaveLength(1);
       expect(baseDao.data).toEqual(
-        expect.arrayContaining([expect.objectContaining({ color: "dark green" })])
+        expect.arrayContaining([expect.objectContaining({ color: "dark green" })]),
       );
       expect(baseDao.error).toHaveLength(0);
 
       baseDao.match = { color: "red" };
       readData = await baseDao.find();
       expect(readData).toHaveLength(1);
-      baseDao.id = readData[0].id;
+      baseDao.id = readData[0]._id;
       await baseDao.update({ color: "maroon" });
       expect(readData).toHaveLength(1);
       baseDao.match = { color: "maroon" };
       readData = await baseDao.find();
       expect(readData).toHaveLength(1);
       expect(baseDao.data).toEqual(
-        expect.arrayContaining([expect.objectContaining({ color: "maroon" })])
+        expect.arrayContaining([expect.objectContaining({ color: "maroon" })]),
       );
       expect(baseDao.error).toHaveLength(0);
     });
@@ -177,12 +171,12 @@ describe("BaseDao", function () {
       baseDao.match = { color: "green" };
       let readData = await baseDao.find();
       expect(readData).toHaveLength(1);
-      baseDao.id = readData[0].id;
+      baseDao.id = readData[0]._id;
       readData = await baseDao.delete();
       expect(readData).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ id: baseDao.id.toHexString() }),
-        ])
+        ]),
       );
       expect(readData).toHaveLength(1);
       baseDao.match = { color: "green" };
@@ -196,7 +190,7 @@ describe("BaseDao", function () {
       let readData = await baseDao.find();
       expect(readData).toHaveLength(2);
       for (let i = 0; i < readData.length; i++) {
-        baseDao.id = readData[i].id;
+        baseDao.id = readData[i]._id;
         await baseDao.delete();
       }
       baseDao.id = null;

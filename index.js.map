@@ -1,1 +1,0 @@
-{"version":3,"sources":["src/index.js"],"names":["MongoDBDao","BaseDao"],"mappings":";;;;;;;;;;;;;AAAA;;AACA;;;;AACO,IAAMA,UAAU,GAAGC,gBAAnB","sourcesContent":["import BaseDao from \"./BaseDao\";\nimport util from \"./util\";\nexport const MongoDBDao = BaseDao;\nexport { util };\n"],"file":"index.js"}
