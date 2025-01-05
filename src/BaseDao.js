@@ -14,6 +14,7 @@ export default class BaseDao {
     this.id = null;
     this.query = null;
     this.dbClient = dbClient;
+    this.dbName = config.dbName;
     this.config = config;
     this.collection = config.collection ? config.collection : "";
     //paginate data

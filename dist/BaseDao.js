@@ -33,6 +33,7 @@ var BaseDao = exports["default"] = /*#__PURE__*/function () {
     this.id = null;
     this.query = null;
     this.dbClient = dbClient;
+    this.dbName = config.dbName;
     this.config = config;
     this.collection = config.collection ? config.collection : "";
     //paginate data
